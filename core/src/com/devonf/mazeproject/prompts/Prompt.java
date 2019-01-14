@@ -9,6 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.kotcrab.vis.ui.VisUI;
 
 public class Prompt {
+
+    private static final int CHARACTER_LINE_LIMIT = 100;
+
     private boolean booleanResponse;
     private String title;
     private String description;
@@ -34,7 +37,10 @@ public class Prompt {
     private void createElements() {
         dialog = new Dialog(title, skin);
 
-        dialog.text(description);
+        //dialog.text(description);
+        Label label = new Label(getWrappedLabelText(description), skin);
+        //label.setWrap(true);
+        dialog.text(label);
 
         if (booleanResponse) {
             TextButton acceptButton = new TextButton("Accept", skin);
@@ -75,6 +81,30 @@ public class Prompt {
         }
 
         dialog.show(stage);
+    }
+
+    /*
+        Wraps text along multiple lines so the description fits in the prompt fully
+     */
+    private String getWrappedLabelText(String text) {
+        if (text.length() <= CHARACTER_LINE_LIMIT) {
+            return text;
+        }
+        String[] words = text.split(" "); // Split our text into words for better wrapping
+        int wordCount = 0;
+        StringBuilder builder = new StringBuilder();
+        while (wordCount < words.length) {
+            int c = 0;
+            do {
+                String word = words[wordCount++];
+                builder.append(word);
+                builder.append(" ");
+                c += word.length();
+            } while (c < CHARACTER_LINE_LIMIT && wordCount < words.length);
+            builder.append("\n");
+        }
+
+        return builder.toString();
     }
 
     public void draw() {

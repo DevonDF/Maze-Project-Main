@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.devonf.mazeproject.MazeSolver;
+import com.devonf.mazeproject.backend.DockTools;
 import com.devonf.mazeproject.backend.Grid;
 import com.devonf.mazeproject.backend.OptionSet;
 import com.devonf.mazeproject.backend.Solver;
@@ -71,10 +72,11 @@ public class Dashboard {
      */
     private static void declareElements() {
         gridSizeOption = new OptionSet(stage, "Grid size: %i", 3, 20, 1, 10, skin, start_x, start_y, allocated_width, allocated_height,
-                0f, 0.85f, 0.9f, 0.05f, true);
+                0f, 0.82f, 0.9f, 0.05f, true,
+                "This changes the size of the grid. Grid has equal lengths.");
 
         startButton = new TextButton("Start!", skin);
-        dockElement(startButton, 0f, 0.09f, 0.9f, 0.1f, true);
+        DockTools.dockElement(startButton, start_x, start_y, allocated_width, allocated_height,0f, 0.09f, 0.9f, 0.1f, true);
         stage.addActor(startButton);
     }
 
@@ -83,32 +85,25 @@ public class Dashboard {
      */
     private static void setupDebugBoard() {
         learningRateOption = new OptionSet(stage, "Learning rate: %i%", 0, 100, 1, 30, skin, start_x, start_y, allocated_width, allocated_height,
-                0f, 0.72f, 0.9f, 0.05f, true);
+                0f, 0.72f, 0.9f, 0.05f, true,
+                "This changes the learning rate. This is how significantly the algorithm makes changes to Q values. A higher value = a bigger change = 'quicker' but less accurate learning.");
         explorationRateMaxOption = new OptionSet(stage, "Expl rate max: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
-                0f, 0.62f, 0.9f, 0.05f, true);
+                0f, 0.62f, 0.9f, 0.05f, true,
+                "This changes the max exploration rate. This is the max probability that the agent will use its Q value knowledge over making a random move while learning. There should" +
+                        " be a healthy balance between random moves and exploitation. This is so the agent can explore the full environment without dying constantly.");
         discountRateOption = new OptionSet(stage, "Discount rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
-                0f, 0.52f, 0.9f, 0.05f, true);
+                0f, 0.52f, 0.9f, 0.05f, true,
+                "This changes the discount rate. This is the rate at which future rewards are discounted to the agent. This means that rewards further away this higher values may" +
+                        " appear as good as close-by rewards with lower values. This should be balanced so that the agent bothers to collect the coins, but does actually leave.");
         coinRewardOption = new OptionSet(stage, "Coin reward: %i", -10, 10, 1, 5, skin, start_x, start_y, allocated_width, allocated_height,
-                0f, 0.42f, 0.9f, 0.05f, true);
+                0f, 0.42f, 0.9f, 0.05f, true,
+                "This changes the reward given to an agent for collecting a coin. Positive values encourage behaviour, while negative values discourage.");
         bombRewardOption = new OptionSet(stage, "Bomb reward: %i", -10, 10, 1, -5, skin, start_x, start_y, allocated_width, allocated_height,
-                0f, 0.32f, 0.9f, 0.05f, true);
+                0f, 0.32f, 0.9f, 0.05f, true,
+                "This changes the reward given to an agent for stepping on a bomb. Positive values encourage behaviour, while negative values discourage.");
         exitRewardOption = new OptionSet(stage, "Exit reward: %i", -10, 10, 1, 10, skin, start_x, start_y, allocated_width, allocated_height,
-                0f, 0.22f, 0.9f, 0.05f, true);
-    }
-
-    /*
-        Internal sub-routine to dock our elements and handle mathematics easily
-     */
-    private static void dockElement(Actor element, float x, float y, float width, float height, boolean centered) {
-        if (centered) {
-            System.out.println(allocated_width);
-            float bounds = (1f-width)/2f;
-            System.out.println(allocated_width*bounds);
-            element.setSize(allocated_width - (bounds*2*allocated_width), height*allocated_height);
-            element.setPosition(start_x + (bounds*allocated_width), start_y + (allocated_height*y));
-        } else {
-            // todo
-        }
+                0f, 0.22f, 0.9f, 0.05f, true,
+                "This changes the reward given to an agent for reaching the exit. Positive values encourage behaviour, while negative values discourage.");
     }
 
     /*
@@ -122,6 +117,9 @@ public class Dashboard {
                 if (Grid.getSize() != value) {
                     Grid.resize(value);
                 }
+            }
+            @Override
+            public void onButtonPress() {
             }
         });
 
