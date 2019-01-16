@@ -1,5 +1,9 @@
 package com.devonf.mazeproject.backend;
 
+import com.devonf.mazeproject.Network.QTable;
+import com.devonf.mazeproject.Network.RewardsTable;
+import com.devonf.mazeproject.graphics.Dashboard;
+import com.devonf.mazeproject.graphics.GridGraphics;
 import com.devonf.mazeproject.prompts.Prompt;
 
 import java.util.ArrayList;
@@ -10,9 +14,18 @@ import java.util.ArrayList;
  */
 public class Solver {
 
+    public static double LEARNING_RATE = 0.3;
+    public static double EXPLORATION_RATE_MAX = 0.5;
+    public static double DISCOUNT_RATE = 0.9;
+    public static double COIN_REWARD = 5;
+    public static double BOMB_REWARD = -5;
+    public static double EXIT_REWARD = 10;
 
     private static ArrayList<Integer> explored;
     private static boolean found;
+
+    private static QTable qTable;
+    private static RewardsTable rewardsTable;
 
     /*
         Sub-routine to determine whether our learning algorithm can start
@@ -72,7 +85,7 @@ public class Solver {
                 iii. Exploration max value
                 iv. Rewards for each action
                 v. Discount rate
-            3. Disable buttons and sliders on dashboard
+            3. Disable dashboard and grid
             4. Declare and configure our learning classes
                 i. QTable
                 ii. RewardsTable
@@ -87,14 +100,32 @@ public class Solver {
             6. Update dashboard to show we've finished and display prompt
      */
     public static void beginSolving() {
+        // 1
         if (!canSolve()) {
             // Our environment is unsolvable, cancel here and prompt the user
-            new Prompt("Notice!", "Current environment cannot be solved.", false, null);
+            new Prompt("Notice!", "Current environment cannot be solved. Please make sure there is ONE entrance and ONE exit, and that" +
+                    " there is a solvable path between the two.", false, null);
             return;
         }
 
-        // Passed solvable test
+        // 3
 
+        Dashboard.disable();
+        GridGraphics.setAcceptInput(false);
+
+        // 4
+
+        qTable = new QTable(Grid.getSize(), Grid.getSize());
+        rewardsTable = new RewardsTable(Grid.getSize(), Grid.getSize());
+
+        for (Square bomb : Grid.getSquaresByType(Square.Type.TYPE_BOMB)) {
+            rewardsTable.addReward(bomb.x, bomb.y, BOMB_REWARD);
+        }
+        for (Square coin : Grid.getSquaresByType(Square.Type.TYPE_COIN)) {
+            rewardsTable.addReward(coin.x, coin.y, COIN_REWARD);
+        }
+        Square exit = Grid.getSquaresByType(Square.Type.TYPE_EXIT)[0];
+        rewardsTable.addReward(exit.x, exit.y, EXIT_REWARD);
     }
 
 }

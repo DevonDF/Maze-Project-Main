@@ -90,4 +90,20 @@ public class OptionSet {
         void onButtonPress();
     }
 
+    /*
+        Disables input
+     */
+    public void disable() {
+        slider.setDisabled(true);
+        button.setDisabled(true);
+    }
+
+    /*
+        Enables input
+     */
+    public void enable() {
+        slider.setDisabled(false);
+        button.setDisabled(false);
+    }
+
 }

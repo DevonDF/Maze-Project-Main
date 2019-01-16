@@ -6,11 +6,12 @@ import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.devonf.mazeproject.graphics.GridGraphics;
 import com.kotcrab.vis.ui.VisUI;
 
 public class Prompt {
 
-    private static final int CHARACTER_LINE_LIMIT = 100;
+    private static final int CHARACTER_LINE_LIMIT = 70;
 
     private boolean booleanResponse;
     private String title;
@@ -81,6 +82,7 @@ public class Prompt {
         }
 
         dialog.show(stage);
+        GridGraphics.setAcceptInput(false); // Disable grid from accepting input
     }
 
     /*
@@ -93,15 +95,18 @@ public class Prompt {
         String[] words = text.split(" "); // Split our text into words for better wrapping
         int wordCount = 0;
         StringBuilder builder = new StringBuilder();
+        int c = 0;
         while (wordCount < words.length) {
-            int c = 0;
-            do {
-                String word = words[wordCount++];
-                builder.append(word);
+            String curWord = words[wordCount];
+            if (curWord.length() + c > CHARACTER_LINE_LIMIT) {
+                builder.append("\n");
+                c = 0;
+            } else {
+                builder.append(curWord);
                 builder.append(" ");
-                c += word.length();
-            } while (c < CHARACTER_LINE_LIMIT && wordCount < words.length);
-            builder.append("\n");
+                c += curWord.length();
+                wordCount++;
+            }
         }
 
         return builder.toString();
@@ -123,6 +128,7 @@ public class Prompt {
 
     public void onDestroy() {
         PromptManager.remove(this);
+        GridGraphics.setAcceptInput(true); // Reallow input
     }
 
     /*

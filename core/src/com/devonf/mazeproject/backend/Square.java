@@ -1,5 +1,6 @@
 package com.devonf.mazeproject.backend;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
 import java.util.HashMap;
@@ -24,12 +25,13 @@ public class Square {
     public static HashMap<Type, Color> TYPECOLOR;
     static {
         TYPECOLOR = new HashMap<Type, Color>();
-        TYPECOLOR.put(Type.TYPE_NOTHING, Color.LIGHT_GRAY);
+        TYPECOLOR.put(Type.TYPE_NOTHING, Color.WHITE);
         TYPECOLOR.put(Type.TYPE_BOMB, Color.RED);
         TYPECOLOR.put(Type.TYPE_START, Color.GREEN);
         TYPECOLOR.put(Type.TYPE_EXIT, Color.GRAY);
         TYPECOLOR.put(Type.TYPE_COIN, Color.GOLD);
     }
+
 
     private static int ID_COUNT = 0;
 

@@ -14,8 +14,10 @@ import com.devonf.mazeproject.prompts.PromptManager;
 */
 public class GridGraphics {
 
+    private static boolean acceptInput = true;
+
     private static final int BORDER_WIDTH = 10;
-    private static final int TILE_BORDER = 5;
+    private static final int TILE_BORDER = 0;
 
     private static int allocated_height;
     private static int allocated_width;
@@ -102,7 +104,7 @@ public class GridGraphics {
      */
     private static void onGridClicked() {
         if (!Gdx.input.justTouched()) {return;} // Not clicked
-        if (PromptManager.isActivePrompt()) {return;} // Prompt is active, don't check grid clicks
+        if (!acceptInput) {return;} // Don't process inputs
         Square square = getSquareFromScreen(Gdx.input.getX(), MazeSolver.HEIGHT-Gdx.input.getY());
         if (square == null) {return;} // No square clicked
         Grid.cycleSquare(square);
@@ -125,5 +127,12 @@ public class GridGraphics {
      */
     private static Square getSquare(int x, int y) {
         return (Grid.getGrid()[(y*(Grid.getSize()))+x]);
+    }
+
+    /*
+        Set whether the grid should process mouse clicks
+     */
+    public static void setAcceptInput(boolean bool) {
+        acceptInput = bool;
     }
 }

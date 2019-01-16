@@ -93,7 +93,7 @@ public class Dashboard {
                         " be a healthy balance between random moves and exploitation. This is so the agent can explore the full environment without dying constantly.");
         discountRateOption = new OptionSet(stage, "Discount rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.52f, 0.9f, 0.05f, true,
-                "This changes the discount rate. This is the rate at which future rewards are discounted to the agent. This means that rewards further away this higher values may" +
+                "This changes the discount rate. This is the rate at which future rewards are discounted to the agent. This means that rewards further away with higher values may" +
                         " appear as good as close-by rewards with lower values. This should be balanced so that the agent bothers to collect the coins, but does actually leave.");
         coinRewardOption = new OptionSet(stage, "Coin reward: %i", -10, 10, 1, 5, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.42f, 0.9f, 0.05f, true,
@@ -141,6 +141,36 @@ public class Dashboard {
         Gdx.input.setInputProcessor(stage);
         stage.act();
         stage.draw();
+    }
+
+    /*
+        Disables dashboard
+        Should disable all elements
+     */
+    public static void disable() {
+        startButton.setDisabled(true);
+        gridSizeOption.disable();
+        bombRewardOption.disable();
+        coinRewardOption.disable();
+        discountRateOption.disable();
+        learningRateOption.disable();
+        explorationRateMaxOption.disable();
+        exitRewardOption.disable();
+    }
+
+    /*
+        Enables dashboard
+        Should enable all elements
+     */
+    public static void enable() {
+        startButton.setDisabled(false);
+        gridSizeOption.enable();
+        bombRewardOption.enable();
+        coinRewardOption.enable();
+        discountRateOption.enable();
+        learningRateOption.enable();
+        explorationRateMaxOption.enable();
+        exitRewardOption.enable();
     }
 
 }
