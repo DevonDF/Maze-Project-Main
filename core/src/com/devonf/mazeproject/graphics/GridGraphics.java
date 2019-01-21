@@ -135,4 +135,11 @@ public class GridGraphics {
     public static void setAcceptInput(boolean bool) {
         acceptInput = bool;
     }
+
+    /*
+        Get our square size
+     */
+    public static float[] getSquareSize() {
+        return square_size;
+    }
 }

@@ -3,6 +3,8 @@ package com.devonf.mazeproject;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.devonf.mazeproject.environment.Player;
 import com.devonf.mazeproject.prompts.PromptManager;
 import com.devonf.mazeproject.backend.Grid;
 import com.devonf.mazeproject.graphics.Dashboard;
@@ -16,12 +18,15 @@ public class MazeSolver extends ApplicationAdapter {
     public static final int WIDTH = 720;
     public static final int DEFAULT_GRID_SIZE = 10;
 
+    Player player;
+
     @Override
     public void create () {
         // Create our grid superclass, and assign screen size for graphical backend
         Grid.initialize(DEFAULT_GRID_SIZE, 520, 480);
         // Create our dashboard class and assign screen size
         Dashboard.initialize(520, 0, WIDTH-520-15, 480);
+        player = new Player(0,0);
     }
 
     @Override
@@ -34,6 +39,12 @@ public class MazeSolver extends ApplicationAdapter {
         Dashboard.draw();
 
         PromptManager.draw();
+
+        player.draw();
+    }
+
+    public static Texture getTexture(String string) {
+        return new Texture(string);
     }
 }
 
