@@ -59,9 +59,6 @@ public class QTable {
     public void calculateNewQValue(int c, int r, int action, double learningRate, RewardsTable rt, double discountRate) {
         // NewQ(s,a) = Q(s,a) + (lr * (R(s,a) + (dr * maxQ(s,a))) - Q(s,a))
         int[] newState = newStateFromAction(c, r, action);
-        //System.out.println("newState: " + Arrays.toString(newState));
-        //System.out.println("currentState: [" + c + ", " + r + "]");
-        //System.out.println("Action: " + action);
         qTable[c][r][action] = getQValue(c, r, action) + (learningRate * (rt.getReward(newState[0], newState[1]) + (discountRate * getMaxQ(newState[0], newState[1]))) - getQValue(c, r, action));
     }
 
