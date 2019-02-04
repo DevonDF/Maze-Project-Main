@@ -128,7 +128,7 @@ public class Dashboard {
             @Override
             public boolean handle(Event event) {
                 if (!(event instanceof ChangeListener.ChangeEvent)) {return false;}
-                Solver.beginSolving();
+                Solver.startSolving();
                 return false;
             }
         });

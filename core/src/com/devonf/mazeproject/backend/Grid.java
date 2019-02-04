@@ -86,9 +86,9 @@ public class Grid {
     public static void cycleSquare(Square s) {
         switch (s.type) {
             case TYPE_NOTHING:
-                s.type = Square.Type.TYPE_START;
+                s.type = Square.Type.TYPE_PLAYER;
                 break;
-            case TYPE_START:
+            case TYPE_PLAYER:
                 s.type = Square.Type.TYPE_BOMB;
                 break;
             case TYPE_BOMB:

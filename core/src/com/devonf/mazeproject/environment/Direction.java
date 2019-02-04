@@ -1,10 +1,10 @@
 package com.devonf.mazeproject.environment;
 
 /*
-    Class used to hold static constants
-    so we can translate rudimentary directions into more
-    applicable data type (int)
- */
+   Class used to hold static constants
+   so we can translate rudimentary directions into more
+   applicable data type (int)
+                     */
 public class Direction {
 
     public static int NORTH = 0;

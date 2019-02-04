@@ -17,7 +17,7 @@ public class Square {
         TYPE_NOTHING,
         TYPE_BOMB,
         TYPE_COIN,
-        TYPE_START,
+        TYPE_PLAYER,
         TYPE_EXIT
     }
 
@@ -27,7 +27,7 @@ public class Square {
         TYPECOLOR = new HashMap<Type, Color>();
         TYPECOLOR.put(Type.TYPE_NOTHING, Color.WHITE);
         TYPECOLOR.put(Type.TYPE_BOMB, Color.RED);
-        TYPECOLOR.put(Type.TYPE_START, Color.GREEN);
+        TYPECOLOR.put(Type.TYPE_PLAYER, Color.GREEN);
         TYPECOLOR.put(Type.TYPE_EXIT, Color.GRAY);
         TYPECOLOR.put(Type.TYPE_COIN, Color.GOLD);
     }

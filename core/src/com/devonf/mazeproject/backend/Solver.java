@@ -2,6 +2,8 @@ package com.devonf.mazeproject.backend;
 
 import com.devonf.mazeproject.Network.QTable;
 import com.devonf.mazeproject.Network.RewardsTable;
+import com.devonf.mazeproject.environment.Agent;
+import com.devonf.mazeproject.environment.Direction;
 import com.devonf.mazeproject.graphics.Dashboard;
 import com.devonf.mazeproject.graphics.GridGraphics;
 import com.devonf.mazeproject.prompts.Prompt;
@@ -27,6 +29,8 @@ public class Solver {
     private static QTable qTable;
     private static RewardsTable rewardsTable;
 
+    private static Thread workingThread; // Holds our thread for working
+
     /*
         Sub-routine to determine whether our learning algorithm can start
         Following checks are performed:
@@ -34,7 +38,7 @@ public class Solver {
             - The maze is solvable - i.e. there is a way to get from start to finish
      */
     public static boolean canSolve() {
-        if (Grid.getSquaresByType(Square.Type.TYPE_START).length != 1 || Grid.getSquaresByType(Square.Type.TYPE_EXIT).length != 1) {
+        if (Grid.getSquaresByType(Square.Type.TYPE_PLAYER).length != 1 || Grid.getSquaresByType(Square.Type.TYPE_EXIT).length != 1) {
             // Fails test #1 -- not ONE start and ONE exit
             return false;
         }
@@ -46,7 +50,7 @@ public class Solver {
          */
         explored = new ArrayList<Integer>();
         found = false;
-        Square start = Grid.getSquaresByType(Square.Type.TYPE_START)[0];
+        Square start = Grid.getSquaresByType(Square.Type.TYPE_PLAYER)[0];
         explore(start);
 
         return found; // Test #2
@@ -78,18 +82,10 @@ public class Solver {
     /*
         Main sub-routine to begin the process of solving/learning
         Should go through the following procedures:
-            1. Checks if the environment is solvable
-            2. Initialise our variables using options selected via in the dashboard
-                i. Learning rate
-                ii. Exploration decay rate
-                iii. Exploration max value
-                iv. Rewards for each action
-                v. Discount rate
-            3. Disable dashboard and grid
-            4. Declare and configure our learning classes
+            1. Declare and configure our learning classes
                 i. QTable
                 ii. RewardsTable
-            5. Begin our learning algorithm
+            2. Begin our learning algorithm
                 i. Make the agent move (either exploitation or exploration)
                 ii. Update graphics to incorporate this move on the board
                 iii. Update our Q value of this move at our previous state with the QTable class
@@ -97,24 +93,10 @@ public class Solver {
                 v. Check if we have died or found the exit
                     a. If true, the board resets, update graphics and the loop starts from (i)
                     b. If false, the loop starts from (i)
-            6. Update dashboard to show we've finished and display prompt
+            3. Update dashboard to show we've finished and display prompt
      */
-    public static void beginSolving() {
+    public static void solve() throws Exception {
         // 1
-        if (!canSolve()) {
-            // Our environment is unsolvable, cancel here and prompt the user
-            new Prompt("Notice!", "Current environment cannot be solved. Please make sure there is ONE entrance and ONE exit, and that" +
-                    " there is a solvable path between the two.", false, null);
-            return;
-        }
-
-        // 3
-
-        Dashboard.disable();
-        GridGraphics.setAcceptInput(false);
-
-        // 4
-
         qTable = new QTable(Grid.getSize(), Grid.getSize());
         rewardsTable = new RewardsTable(Grid.getSize(), Grid.getSize());
 
@@ -126,6 +108,74 @@ public class Solver {
         }
         Square exit = Grid.getSquaresByType(Square.Type.TYPE_EXIT)[0];
         rewardsTable.addReward(exit.x, exit.y, EXIT_REWARD);
+
+        // 2
+        Square[] defaultGrid = Grid.getGrid(); // Cache our current configured copy
+        Agent agent = new Agent(Grid.getSquaresByType(Square.Type.TYPE_PLAYER)[0]); // Create our agent
+        while (true) {
+            agent.move(Direction.NORTH);
+            Thread.sleep(100);
+            int test = 10 / 0;
+        }
+    }
+
+
+    /*
+        Begins our solving routine on a different thread
+        Should process following steps
+        1. Checks if the environment is solvable
+        2. Disable dashboard and grid
+        3. Create new thread and begin running routine
+     */
+    public static void startSolving() {
+        // 1
+
+        if (!canSolve()) {
+            // Our environment is unsolvable, cancel here and prompt the user
+            new Prompt("Notice!", "Current environment cannot be solved. Please make sure there is ONE entrance and ONE exit, and that" +
+                    " there is a solvable path between the two.", false, null);
+            return;
+        }
+
+        // 2
+
+        Dashboard.disable();
+        GridGraphics.setAcceptInput(false);
+
+        // 3
+
+        if (workingThread != null) {
+            workingThread.interrupt(); // Stop any current thread before starting to avoid any issues
+        }
+
+        workingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    solve();
+                } catch (Exception e) {
+                    onInterrupt();
+                }
+                onFinishedSolving();
+            }
+        });
+        workingThread.start();
+    }
+
+    /*
+        Internal sub routine for handling thread interrupts
+     */
+    private static void onInterrupt() {
+        onFinishedSolving();
+        new Prompt("Error!", "Learning algorithm was interrupted during execution", false, null);
+    }
+
+    /*
+        Internal sub routine for handling aftermath of learning
+     */
+    private static void onFinishedSolving() {
+        Dashboard.disable();
+        GridGraphics.setAcceptInput(false);
     }
 
 }
