@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class Solver {
 
     public static double LEARNING_RATE = 0.3;
-    public static double EXPLORATION_RATE_MAX = 0.5;
+    public static double EXPLORATION_RATE = 0.5;
     public static double DISCOUNT_RATE = 0.9;
     public static double COIN_REWARD = 5;
     public static double BOMB_REWARD = -5;
@@ -95,7 +95,7 @@ public class Solver {
                     b. If false, the loop starts from (i)
             3. Update dashboard to show we've finished and display prompt
      */
-    public static void solve() throws Exception {
+    private static void solve(onMainThread onMainThread) throws Exception {
         // 1
         qTable = new QTable(Grid.getSize(), Grid.getSize());
         rewardsTable = new RewardsTable(Grid.getSize(), Grid.getSize());
@@ -110,13 +110,51 @@ public class Solver {
         rewardsTable.addReward(exit.x, exit.y, EXIT_REWARD);
 
         // 2
-        Square[] defaultGrid = Grid.getGrid(); // Cache our current configured copy
+        //Square[] defaultGrid = Grid.getGrid(); // Cache our current configured copy
+        //Grid.cacheGrid();
         Agent agent = new Agent(Grid.getSquaresByType(Square.Type.TYPE_PLAYER)[0]); // Create our agent
-        while (true) {
-            agent.move(Direction.NORTH);
+
+        int wins = 0;
+        while (wins < 100) {
+            int old_x = agent.getX();
+            int old_y = agent.getY();
+            int move;
+
+            if (EXPLORATION_RATE > Math.random()) {
+                // We explore here
+                move = (int)Math.round(Math.random() * 3);
+            } else {
+                // We exploit here
+                move = qTable.getBestAction(old_x, old_y);
+            }
+
+            System.out.println(move);
+            boolean successfulMove = agent.move(move);
+            System.out.println(successfulMove);
+            if (!successfulMove) {
+                qTable.setQValue(old_x, old_y, move, -100); // Stop the agent from going out of bounds
+            } else {
+                qTable.calculateNewQValue(old_x, old_y, move, LEARNING_RATE, rewardsTable, DISCOUNT_RATE); // Set our qtable to calculate our new qvalue
+            }
+
+            if (!agent.isAlive()) {
+                // We have gone into a bomb, reset the grid and agent
+                agent.reset();
+                onMainThread.updateGrid();
+            } else if (agent.hasEscaped()) {
+                // We have escaped, increment wins and reset grid and agent
+                wins++;
+                agent.reset();
+                onMainThread.updateGrid();
+                //System.out.println(Grid.getSquaresByType(Square.Type.TYPE_EXIT)[0].x);
+            }
+
+            // Sleep our thread here to allow for graphics to catchup with the backend processing
             Thread.sleep(100);
-            int test = 10 / 0;
         }
+
+
+
     }
 
 
@@ -148,12 +186,22 @@ public class Solver {
             workingThread.interrupt(); // Stop any current thread before starting to avoid any issues
         }
 
+        Grid.cacheGrid();
+
+        final onMainThread onMainThread = new onMainThread() {
+            @Override
+            public void updateGrid() {
+                Grid.revertToCachedGrid();
+            }
+        };
+
         workingThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    solve();
+                    solve(onMainThread);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     onInterrupt();
                 }
                 onFinishedSolving();
@@ -162,18 +210,23 @@ public class Solver {
         workingThread.start();
     }
 
+    private interface onMainThread {
+        void updateGrid();
+    }
+
     /*
         Internal sub routine for handling thread interrupts
      */
     private static void onInterrupt() {
+        System.out.println("onInterrupt");
         onFinishedSolving();
-        new Prompt("Error!", "Learning algorithm was interrupted during execution", false, null);
     }
 
     /*
         Internal sub routine for handling aftermath of learning
      */
     private static void onFinishedSolving() {
+        System.out.println("onFinishedSolving");
         Dashboard.disable();
         GridGraphics.setAcceptInput(false);
     }

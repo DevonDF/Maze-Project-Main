@@ -11,6 +11,8 @@ import java.util.ArrayList;
 */
 public class Grid {
 
+    private static Square[] cachedGrid; // Holds a cached grid
+
     private static Square[] grid; // Holds grid
     private static int gridSize;
 
@@ -64,6 +66,31 @@ public class Grid {
         Return our grid
      */
     public static Square[] getGrid() { return grid; }
+
+    /*
+        Manually set our grid with a pre-prepared array
+     */
+    public static void setGrid(Square[] newGrid) {
+        grid = newGrid;
+        System.out.println("run!");
+        //GridGraphics.initialize(allocated_width, allocated_height);
+    }
+
+    /*
+        Cache our grid for later use
+     */
+    public static void cacheGrid() {
+        cachedGrid = grid;
+    }
+
+    /*
+        Use our cached grid
+     */
+    public static void revertToCachedGrid() {
+        if (cachedGrid != null) {
+            grid = cachedGrid;
+        }
+    }
 
     /*
         Returns the gridSize of our grid

@@ -59,6 +59,7 @@ public class QTable {
     public void calculateNewQValue(int c, int r, int action, double learningRate, RewardsTable rt, double discountRate) {
         // NewQ(s,a) = Q(s,a) + (lr * (R(s,a) + (dr * maxQ(s,a))) - Q(s,a))
         int[] newState = newStateFromAction(c, r, action);
+        System.out.println(newState[0] + "," + newState[1]);
         qTable[c][r][action] = getQValue(c, r, action) + (learningRate * (rt.getReward(newState[0], newState[1]) + (discountRate * getMaxQ(newState[0], newState[1]))) - getQValue(c, r, action));
     }
 
@@ -79,7 +80,7 @@ public class QTable {
         switch(action) {
             case 0:
                 // North
-                newY--;
+                newY++;
                 break;
             case 1:
                 // East
@@ -87,7 +88,7 @@ public class QTable {
                 break;
             case 2:
                 // South
-                newY++;
+                newY--;
                 break;
             case 3:
                 // West

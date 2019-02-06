@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.devonf.mazeproject.graphics.GridGraphics;
 import com.devonf.mazeproject.prompts.PromptManager;
 import com.devonf.mazeproject.backend.Grid;
 import com.devonf.mazeproject.graphics.Dashboard;
@@ -30,7 +31,7 @@ public class MazeSolver extends ApplicationAdapter {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        Grid.draw();
+        GridGraphics.draw();
 
         Dashboard.draw();
 
