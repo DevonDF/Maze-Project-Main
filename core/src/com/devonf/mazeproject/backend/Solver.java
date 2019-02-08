@@ -9,6 +9,7 @@ import com.devonf.mazeproject.graphics.GridGraphics;
 import com.devonf.mazeproject.prompts.Prompt;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /*
     Main class for the backend solving algorithm
@@ -22,6 +23,7 @@ public class Solver {
     public static double COIN_REWARD = 5;
     public static double BOMB_REWARD = -5;
     public static double EXIT_REWARD = 10;
+
 
     private static ArrayList<Integer> explored;
     private static boolean found;
@@ -95,7 +97,7 @@ public class Solver {
                     b. If false, the loop starts from (i)
             3. Update dashboard to show we've finished and display prompt
      */
-    private static void solve(onMainThread onMainThread) throws Exception {
+    private static void solve() throws Exception {
         // 1
         qTable = new QTable(Grid.getSize(), Grid.getSize());
         rewardsTable = new RewardsTable(Grid.getSize(), Grid.getSize());
@@ -110,8 +112,7 @@ public class Solver {
         rewardsTable.addReward(exit.x, exit.y, EXIT_REWARD);
 
         // 2
-        //Square[] defaultGrid = Grid.getGrid(); // Cache our current configured copy
-        //Grid.cacheGrid();
+        Grid.cache();
         Agent agent = new Agent(Grid.getSquaresByType(Square.Type.TYPE_PLAYER)[0]); // Create our agent
 
         int wins = 0;
@@ -140,12 +141,12 @@ public class Solver {
             if (!agent.isAlive()) {
                 // We have gone into a bomb, reset the grid and agent
                 agent.reset();
-                onMainThread.updateGrid();
+                Grid.revertToCache();
             } else if (agent.hasEscaped()) {
                 // We have escaped, increment wins and reset grid and agent
                 wins++;
                 agent.reset();
-                onMainThread.updateGrid();
+                Grid.revertToCache();
                 //System.out.println(Grid.getSquaresByType(Square.Type.TYPE_EXIT)[0].x);
             }
 
@@ -186,20 +187,12 @@ public class Solver {
             workingThread.interrupt(); // Stop any current thread before starting to avoid any issues
         }
 
-        Grid.cacheGrid();
-
-        final onMainThread onMainThread = new onMainThread() {
-            @Override
-            public void updateGrid() {
-                Grid.revertToCachedGrid();
-            }
-        };
 
         workingThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    solve(onMainThread);
+                    solve();
                 } catch (Exception e) {
                     e.printStackTrace();
                     onInterrupt();
@@ -208,10 +201,6 @@ public class Solver {
             }
         });
         workingThread.start();
-    }
-
-    private interface onMainThread {
-        void updateGrid();
     }
 
     /*

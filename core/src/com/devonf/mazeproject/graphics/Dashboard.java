@@ -87,9 +87,9 @@ public class Dashboard {
         learningRateOption = new OptionSet(stage, "Learning rate: %i%", 0, 100, 1, 30, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.72f, 0.9f, 0.05f, true,
                 "This changes the learning rate. This is how significantly the algorithm makes changes to Q values. A higher value = a bigger change = 'quicker' but less accurate learning.");
-        explorationRateMaxOption = new OptionSet(stage, "Expl rate max: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
+        explorationRateMaxOption = new OptionSet(stage, "Explor rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.62f, 0.9f, 0.05f, true,
-                "This changes the max exploration rate. This is the max probability that the agent will use its Q value knowledge over making a random move while learning. There should" +
+                "This changes the exploration rate. This is the probability that the agent will use its Q value knowledge over making a random move while learning. There should" +
                         " be a healthy balance between random moves and exploitation. This is so the agent can explore the full environment without dying constantly.");
         discountRateOption = new OptionSet(stage, "Discount rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.52f, 0.9f, 0.05f, true,
@@ -104,6 +104,79 @@ public class Dashboard {
         exitRewardOption = new OptionSet(stage, "Exit reward: %i", -10, 10, 1, 10, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.22f, 0.9f, 0.05f, true,
                 "This changes the reward given to an agent for reaching the exit. Positive values encourage behaviour, while negative values discourage.");
+
+        learningRateOption.setListener(new OptionSet.OptionSetListener() {
+            @Override
+            public void onChangeValue(int value) {
+                Solver.LEARNING_RATE = value;
+            }
+
+            @Override
+            public void onButtonPress() {
+
+            }
+        });
+
+        explorationRateMaxOption.setListener(new OptionSet.OptionSetListener() {
+            @Override
+            public void onChangeValue(int value) {
+                Solver.EXPLORATION_RATE = value;
+            }
+
+            @Override
+            public void onButtonPress() {
+
+            }
+        });
+
+        discountRateOption.setListener(new OptionSet.OptionSetListener() {
+            @Override
+            public void onChangeValue(int value) {
+                Solver.DISCOUNT_RATE = value;
+            }
+
+            @Override
+            public void onButtonPress() {
+
+            }
+        });
+
+        coinRewardOption.setListener(new OptionSet.OptionSetListener() {
+            @Override
+            public void onChangeValue(int value) {
+                Solver.COIN_REWARD = value;
+            }
+
+            @Override
+            public void onButtonPress() {
+
+            }
+        });
+
+        bombRewardOption.setListener(new OptionSet.OptionSetListener() {
+            @Override
+            public void onChangeValue(int value) {
+                Solver.BOMB_REWARD = value;
+            }
+
+            @Override
+            public void onButtonPress() {
+
+            }
+        });
+
+        exitRewardOption.setListener(new OptionSet.OptionSetListener() {
+            @Override
+            public void onChangeValue(int value) {
+                Solver.EXIT_REWARD = value;
+            }
+
+            @Override
+            public void onButtonPress() {
+
+            }
+        });
+
     }
 
     /*
@@ -154,7 +227,7 @@ public class Dashboard {
         coinRewardOption.disable();
         discountRateOption.disable();
         learningRateOption.disable();
-        explorationRateMaxOption.disable();
+        //explorationRateMaxOption.disable();
         exitRewardOption.disable();
     }
 

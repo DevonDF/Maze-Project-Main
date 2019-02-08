@@ -14,7 +14,7 @@ public class RewardsTable {
         this.rewardsTable = new double[x][y];
         for (int x2 = 0; x2 < x; x2++) {
             for (int y2 = 0; y2 < y; y2++) {
-                rewardsTable[x2][y2] = 0;
+                rewardsTable[x2][y2] = -1;
             }
         }
     }

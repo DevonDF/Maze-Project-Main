@@ -4,6 +4,7 @@ package com.devonf.mazeproject.backend;
 import com.devonf.mazeproject.graphics.GridGraphics;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /*
     Handles the grid for the backend
@@ -11,9 +12,8 @@ import java.util.ArrayList;
 */
 public class Grid {
 
-    private static Square[] cachedGrid; // Holds a cached grid
-
-    private static Square[] grid; // Holds grid
+    private static Square[] gridCache; // Holds cached grid
+    private volatile static Square[] grid; // Holds grid
     private static int gridSize;
 
     private static int allocated_width;
@@ -65,30 +65,28 @@ public class Grid {
     /*
         Return our grid
      */
-    public static Square[] getGrid() { return grid; }
+    public synchronized static Square[] getGrid() { return grid; }
 
     /*
-        Manually set our grid with a pre-prepared array
+        Cache our grid
      */
-    public static void setGrid(Square[] newGrid) {
-        grid = newGrid;
-        System.out.println("run!");
-        //GridGraphics.initialize(allocated_width, allocated_height);
+    public static void cache() {
+        gridCache = new Square[gridSize * gridSize];
+        for (int i = 0; i < gridCache.length; i++) {
+            gridCache[i] = new Square();
+            gridCache[i].x = grid[i].x;
+            gridCache[i].y = grid[i].y;
+            gridCache[i].type = grid[i].type;
+        }
     }
 
     /*
-        Cache our grid for later use
+        Revert to cache
      */
-    public static void cacheGrid() {
-        cachedGrid = grid;
-    }
-
-    /*
-        Use our cached grid
-     */
-    public static void revertToCachedGrid() {
-        if (cachedGrid != null) {
-            grid = cachedGrid;
+    public static void revertToCache() {
+        if (gridCache == null) {return;}
+        for (int i = 0; i < grid.length; i++) {
+            grid[i].type = gridCache[i].type;
         }
     }
 
