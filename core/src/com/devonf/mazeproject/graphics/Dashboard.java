@@ -1,16 +1,12 @@
 package com.devonf.mazeproject.graphics;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
-import com.devonf.mazeproject.MazeSolver;
 import com.devonf.mazeproject.backend.DockTools;
 import com.devonf.mazeproject.backend.Grid;
 import com.devonf.mazeproject.backend.OptionSet;
@@ -23,20 +19,27 @@ import com.kotcrab.vis.ui.VisUI;
  */
 public class Dashboard {
 
+    // Holds enum for type of dashboard
+    public enum TYPE {
+        TYPE_DEBUG,
+        TYPE_RUNNING,
+        TYPE_CONFIGURATION
+    }
+
     private static int allocated_height;
     private static int allocated_width;
     private static int start_x;
     private static int start_y;
 
-    private static Stage stage;
+    private static Stage configurationStage;
+    private static Stage runningStage;
+    private static TYPE stageType; // Determines which stage to render: 0=config, 1=running
     private static ShapeRenderer shapeRenderer;
     private static Skin skin;
 
-    // Element variables
+    // Element variables for configuration
     private static OptionSet gridSizeOption;
     private static TextButton startButton;
-
-    // Debug variables
     private static OptionSet learningRateOption;
     private static OptionSet explorationRateMaxOption;
     private static OptionSet discountRateOption;
@@ -44,64 +47,62 @@ public class Dashboard {
     private static OptionSet bombRewardOption;
     private static OptionSet exitRewardOption;
 
+    // Element variables for running
+    private static OptionSet speedOption;
+    private static TextButton stopButton;
+
 
     public static void initialize(int x, int y, int width, int height) {
         start_x = x;
         start_y = y;
         allocated_width = width;
         allocated_height = height;
+        stageType = TYPE.TYPE_CONFIGURATION;
 
-        stage = new Stage();
+        configurationStage = new Stage();
+        runningStage = new Stage();
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
         if (!VisUI.isLoaded()) {VisUI.load();} // Using VisUI as a dependency for our skins
         skin = VisUI.getSkin(); // Using VisUI dependency for our skin
 
-        // Element variables
-        declareElements();
+        // Declare elements for our configuration dashboard
+        declareConfigurationElements();
 
-        // Setting up our debug area
-        setupDebugBoard();
-
-        // Set-up our listeners
-        setUpListeners();
+        // Declare elements for our running dashboard
+        declareRunningElements();
     }
 
     /*
         Internal sub-routine to declare our elements
      */
-    private static void declareElements() {
-        gridSizeOption = new OptionSet(stage, "Grid size: %i", 3, 20, 1, 10, skin, start_x, start_y, allocated_width, allocated_height,
+    private static void declareConfigurationElements() {
+        gridSizeOption = new OptionSet(configurationStage, "Grid size: %i", 3, 20, 1, 10, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.82f, 0.9f, 0.05f, true,
                 "This changes the size of the grid. Grid has equal lengths.");
 
         startButton = new TextButton("Start!", skin);
         DockTools.dockElement(startButton, start_x, start_y, allocated_width, allocated_height,0f, 0.09f, 0.9f, 0.1f, true);
-        stage.addActor(startButton);
-    }
+        configurationStage.addActor(startButton);
 
-    /*
-        Internal sub-routine to declare elements relating to debug board
-     */
-    private static void setupDebugBoard() {
-        learningRateOption = new OptionSet(stage, "Learning rate: %i%", 0, 100, 1, 30, skin, start_x, start_y, allocated_width, allocated_height,
+        learningRateOption = new OptionSet(configurationStage, "Learning rate: %i%", 0, 100, 1, 30, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.72f, 0.9f, 0.05f, true,
                 "This changes the learning rate. This is how significantly the algorithm makes changes to Q values. A higher value = a bigger change = 'quicker' but less accurate learning.");
-        explorationRateMaxOption = new OptionSet(stage, "Explor rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
+        explorationRateMaxOption = new OptionSet(configurationStage, "Explor rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.62f, 0.9f, 0.05f, true,
                 "This changes the exploration rate. This is the probability that the agent will use its Q value knowledge over making a random move while learning. There should" +
                         " be a healthy balance between random moves and exploitation. This is so the agent can explore the full environment without dying constantly.");
-        discountRateOption = new OptionSet(stage, "Discount rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
+        discountRateOption = new OptionSet(configurationStage, "Discount rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.52f, 0.9f, 0.05f, true,
                 "This changes the discount rate. This is the rate at which future rewards are discounted to the agent. This means that rewards further away with higher values may" +
                         " appear as good as close-by rewards with lower values. This should be balanced so that the agent bothers to collect the coins, but does actually leave.");
-        coinRewardOption = new OptionSet(stage, "Coin reward: %i", -10, 10, 1, 5, skin, start_x, start_y, allocated_width, allocated_height,
+        coinRewardOption = new OptionSet(configurationStage, "Coin reward: %i", -10, 10, 1, 5, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.42f, 0.9f, 0.05f, true,
                 "This changes the reward given to an agent for collecting a coin. Positive values encourage behaviour, while negative values discourage.");
-        bombRewardOption = new OptionSet(stage, "Bomb reward: %i", -10, 10, 1, -5, skin, start_x, start_y, allocated_width, allocated_height,
+        bombRewardOption = new OptionSet(configurationStage, "Bomb reward: %i", -10, 10, 1, -5, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.32f, 0.9f, 0.05f, true,
                 "This changes the reward given to an agent for stepping on a bomb. Positive values encourage behaviour, while negative values discourage.");
-        exitRewardOption = new OptionSet(stage, "Exit reward: %i", -10, 10, 1, 10, skin, start_x, start_y, allocated_width, allocated_height,
+        exitRewardOption = new OptionSet(configurationStage, "Exit reward: %i", -10, 10, 1, 10, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.22f, 0.9f, 0.05f, true,
                 "This changes the reward given to an agent for reaching the exit. Positive values encourage behaviour, while negative values discourage.");
 
@@ -177,13 +178,6 @@ public class Dashboard {
             }
         });
 
-    }
-
-    /*
-        Internal sub-routine to setup listeners for our elements
-     */
-    private static void setUpListeners() {
-        // Resizing our grid
         gridSizeOption.setListener(new OptionSet.OptionSetListener() {
             @Override
             public void onChangeValue(int value) {
@@ -208,12 +202,52 @@ public class Dashboard {
     }
 
     /*
+        Sub-routine to declare elements for our running dashboard
+     */
+    private static void declareRunningElements() {
+        speedOption = new OptionSet(runningStage, "Speed: %i", 10, 1000, 10, 100, skin, start_x, start_y, allocated_width, allocated_height,
+                0f, 0.72f, 0.9f, 0.05f, true, "Sets the speed of the game");
+
+        stopButton = new TextButton("Stop", skin);
+        DockTools.dockElement(stopButton, start_x, start_y, allocated_width, allocated_height,0f, 0.09f, 0.9f, 0.1f, true);
+        runningStage.addActor(stopButton);
+
+        speedOption.setListener(new OptionSet.OptionSetListener() {
+            @Override
+            public void onChangeValue(int value) {
+                Solver.SPEED = value;
+            }
+
+            @Override
+            public void onButtonPress() {
+
+            }
+        });
+
+        stopButton.addCaptureListener(new EventListener() {
+            @Override
+            public boolean handle(Event event) {
+                if (!(event instanceof ChangeListener.ChangeEvent)) {return false;}
+                Solver.stopSolving();
+                return false;
+            }
+        });
+    }
+
+    /*
         Sub-routine to draw our elements upon request
      */
     public static void draw() {
-        Gdx.input.setInputProcessor(stage);
-        stage.act();
-        stage.draw();
+        if (stageType == TYPE.TYPE_CONFIGURATION) {
+            Gdx.input.setInputProcessor(configurationStage);
+            configurationStage.act();
+            configurationStage.draw();
+        } else if (stageType == TYPE.TYPE_RUNNING) {
+            Gdx.input.setInputProcessor(runningStage);
+            runningStage.act();
+            runningStage.draw();
+        }
+
     }
 
     /*
@@ -227,7 +261,7 @@ public class Dashboard {
         coinRewardOption.disable();
         discountRateOption.disable();
         learningRateOption.disable();
-        //explorationRateMaxOption.disable();
+        explorationRateMaxOption.disable();
         exitRewardOption.disable();
     }
 
@@ -245,5 +279,14 @@ public class Dashboard {
         explorationRateMaxOption.enable();
         exitRewardOption.enable();
     }
+
+    /*
+        Switches type of dashboard
+     */
+    public static void setDashboardType(TYPE type) {
+        stageType = type;
+    }
+
+
 
 }

@@ -23,6 +23,7 @@ public class Solver {
     public static double COIN_REWARD = 5;
     public static double BOMB_REWARD = -5;
     public static double EXIT_REWARD = 10;
+    public static long SPEED = 100;
 
 
     private static ArrayList<Integer> explored;
@@ -124,6 +125,7 @@ public class Solver {
             if (EXPLORATION_RATE > Math.random()) {
                 // We explore here
                 move = (int)Math.round(Math.random() * 3);
+                System.out.println("Made random move: " + move);
             } else {
                 // We exploit here
                 move = qTable.getBestAction(old_x, old_y);
@@ -151,7 +153,7 @@ public class Solver {
             }
 
             // Sleep our thread here to allow for graphics to catchup with the backend processing
-            Thread.sleep(100);
+            Thread.sleep(SPEED);
         }
 
 
@@ -178,7 +180,7 @@ public class Solver {
 
         // 2
 
-        Dashboard.disable();
+        Dashboard.setDashboardType(Dashboard.TYPE.TYPE_RUNNING);
         GridGraphics.setAcceptInput(false);
 
         // 3
@@ -194,7 +196,6 @@ public class Solver {
                 try {
                     solve();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     onInterrupt();
                 }
                 onFinishedSolving();
@@ -204,10 +205,22 @@ public class Solver {
     }
 
     /*
+        Stop our background solving thread
+     */
+    public static void stopSolving() {
+        if (workingThread != null) {
+            if (workingThread.isAlive()) {
+                workingThread.interrupt();
+            }
+        }
+    }
+
+    /*
         Internal sub routine for handling thread interrupts
      */
     private static void onInterrupt() {
         System.out.println("onInterrupt");
+        Grid.revertToCache();
         onFinishedSolving();
     }
 
@@ -216,8 +229,6 @@ public class Solver {
      */
     private static void onFinishedSolving() {
         System.out.println("onFinishedSolving");
-        Dashboard.disable();
-        GridGraphics.setAcceptInput(false);
     }
 
 }
