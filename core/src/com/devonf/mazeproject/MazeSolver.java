@@ -37,9 +37,5 @@ public class MazeSolver extends ApplicationAdapter {
 
         PromptManager.draw();
     }
-
-    public static Texture getTexture(String string) {
-        return new Texture(string);
-    }
 }
 

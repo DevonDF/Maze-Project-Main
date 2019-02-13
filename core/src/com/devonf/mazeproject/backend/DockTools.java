@@ -10,7 +10,8 @@ public class DockTools {
     /*
         Internal sub-routine to dock our elements and handle mathematics easily
      */
-    public static void dockElement(Actor element, int start_x, int start_y, int allocated_width, int allocated_height, float x, float y, float width, float height, boolean centered) {
+    public static void dockElement(Actor element, int start_x, int start_y, int allocated_width, int allocated_height,
+                                   float x, float y, float width, float height, boolean centered) {
         if (centered) {
             float bounds = (1f-width)/2f;
             element.setSize(allocated_width - (bounds*2*allocated_width), height*allocated_height);

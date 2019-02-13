@@ -125,19 +125,17 @@ public class Solver {
             if (EXPLORATION_RATE > Math.random()) {
                 // We explore here
                 move = (int)Math.round(Math.random() * 3);
-                System.out.println("Made random move: " + move);
             } else {
                 // We exploit here
                 move = qTable.getBestAction(old_x, old_y);
             }
 
-            System.out.println(move);
             boolean successfulMove = agent.move(move);
-            System.out.println(successfulMove);
             if (!successfulMove) {
                 qTable.setQValue(old_x, old_y, move, -100); // Stop the agent from going out of bounds
             } else {
-                qTable.calculateNewQValue(old_x, old_y, move, LEARNING_RATE, rewardsTable, DISCOUNT_RATE); // Set our qtable to calculate our new qvalue
+                qTable.calculateNewQValue(old_x, old_y, move, LEARNING_RATE,
+                        rewardsTable, DISCOUNT_RATE); // Set our qtable to calculate our new qvalue
             }
 
             if (!agent.isAlive()) {
@@ -149,7 +147,6 @@ public class Solver {
                 wins++;
                 agent.reset();
                 Grid.revertToCache();
-                //System.out.println(Grid.getSquaresByType(Square.Type.TYPE_EXIT)[0].x);
             }
 
             // Sleep our thread here to allow for graphics to catchup with the backend processing

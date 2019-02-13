@@ -53,12 +53,12 @@ public class GridGraphics {
         square_size[1] = ((float)workable_y/(float)(Grid.getSize()));
 
         // Assign our square positions
-        int c = 0;
         for (int x = 0; x < Grid.getSize(); x++) {
             for (int y = 0; y < Grid.getSize(); y++) {
                 Square square = Grid.getSquare(x, y);
+                if (square == null) {continue;}
                 square.graphic_x = BORDER_WIDTH + ((TILE_BORDER+square_size[0])*x);
-                square.graphic_y = BORDER_WIDTH +((TILE_BORDER+square_size[1])*y);
+                square.graphic_y = BORDER_WIDTH + ((TILE_BORDER+square_size[1])*y);
             }
         }
     }
