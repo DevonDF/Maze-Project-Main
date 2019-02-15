@@ -4,7 +4,6 @@ package com.devonf.mazeproject.backend;
 import com.devonf.mazeproject.graphics.GridGraphics;
 
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantLock;
 
 /*
     Handles the grid for the backend
@@ -19,14 +18,14 @@ public class Grid {
     private static int allocated_width;
     private static int allocated_height;
 
-    public static void initialize(int size, int awidth, int aheight) {
+    public static void initialise(int size, int awidth, int aheight) {
         grid = new Square[size*size];
         gridSize = size;
         allocated_height = aheight;
         allocated_width = awidth;
 
         resetGrid();
-        GridGraphics.initialize(awidth, aheight);
+        GridGraphics.initialise(awidth, aheight);
     }
 
     /*
@@ -44,11 +43,6 @@ public class Grid {
             }
         }
     }
-
-    /*
-        Draws our grid using the backend class
-     */
-    public static void draw() { GridGraphics.draw(); }
 
     /*
         Return value of grid at x, y
@@ -102,7 +96,7 @@ public class Grid {
         grid = new Square[size*size];
         gridSize = size;
         resetGrid();
-        GridGraphics.initialize(allocated_width, allocated_height);
+        GridGraphics.initialise(allocated_width, allocated_height);
     }
 
     /*

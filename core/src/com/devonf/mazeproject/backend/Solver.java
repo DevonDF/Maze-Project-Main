@@ -3,13 +3,11 @@ package com.devonf.mazeproject.backend;
 import com.devonf.mazeproject.Network.QTable;
 import com.devonf.mazeproject.Network.RewardsTable;
 import com.devonf.mazeproject.environment.Agent;
-import com.devonf.mazeproject.environment.Direction;
 import com.devonf.mazeproject.graphics.Dashboard;
 import com.devonf.mazeproject.graphics.GridGraphics;
 import com.devonf.mazeproject.prompts.Prompt;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /*
     Main class for the backend solving algorithm
@@ -177,7 +175,7 @@ public class Solver {
 
         // 2
 
-        Dashboard.setDashboardType(Dashboard.TYPE.TYPE_RUNNING);
+        Dashboard.setDashboardType(Dashboard.Type.TYPE_RUNNING);
         GridGraphics.setAcceptInput(false);
 
         // 3

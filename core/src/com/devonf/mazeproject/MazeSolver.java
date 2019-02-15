@@ -3,7 +3,6 @@ package com.devonf.mazeproject;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.devonf.mazeproject.graphics.GridGraphics;
 import com.devonf.mazeproject.prompts.PromptManager;
 import com.devonf.mazeproject.backend.Grid;
@@ -21,7 +20,7 @@ public class MazeSolver extends ApplicationAdapter {
     @Override
     public void create () {
         // Create our grid superclass, and assign screen size for graphical backend
-        Grid.initialize(DEFAULT_GRID_SIZE, 520, 480);
+        Grid.initialise(DEFAULT_GRID_SIZE, 520, 480);
         // Create our dashboard class and assign screen size
         Dashboard.initialize(520, 0, WIDTH-520-15, 480);
     }

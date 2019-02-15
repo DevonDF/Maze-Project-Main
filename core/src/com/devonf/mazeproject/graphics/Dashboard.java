@@ -1,7 +1,6 @@
 package com.devonf.mazeproject.graphics;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -20,7 +19,7 @@ import com.kotcrab.vis.ui.VisUI;
 public class Dashboard {
 
     // Holds enum for type of dashboard
-    public enum TYPE {
+    public enum Type {
         TYPE_DEBUG,
         TYPE_RUNNING,
         TYPE_CONFIGURATION
@@ -33,15 +32,14 @@ public class Dashboard {
 
     private static Stage configurationStage;
     private static Stage runningStage;
-    private static TYPE stageType; // Determines which stage to render: 0=config, 1=running
-    private static ShapeRenderer shapeRenderer;
+    private static Type stageType;
     private static Skin skin;
 
     // Element variables for configuration
     private static OptionSet gridSizeOption;
     private static TextButton startButton;
     private static OptionSet learningRateOption;
-    private static OptionSet explorationRateMaxOption;
+    private static OptionSet explorationRateOption;
     private static OptionSet discountRateOption;
     private static OptionSet coinRewardOption;
     private static OptionSet bombRewardOption;
@@ -57,12 +55,10 @@ public class Dashboard {
         start_y = y;
         allocated_width = width;
         allocated_height = height;
-        stageType = TYPE.TYPE_CONFIGURATION;
+        stageType = Type.TYPE_CONFIGURATION;
 
         configurationStage = new Stage();
         runningStage = new Stage();
-        shapeRenderer = new ShapeRenderer();
-        shapeRenderer.setAutoShapeType(true);
         if (!VisUI.isLoaded()) {VisUI.load();} // Using VisUI as a dependency for our skins
         skin = VisUI.getSkin(); // Using VisUI dependency for our skin
 
@@ -88,7 +84,7 @@ public class Dashboard {
         learningRateOption = new OptionSet(configurationStage, "Learning rate: %i%", 0, 100, 1, 30, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.72f, 0.9f, 0.05f, true,
                 "This changes the learning rate. This is how significantly the algorithm makes changes to Q values. A higher value = a bigger change = 'quicker' but less accurate learning.");
-        explorationRateMaxOption = new OptionSet(configurationStage, "Explor rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
+        explorationRateOption = new OptionSet(configurationStage, "Explor rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.62f, 0.9f, 0.05f, true,
                 "This changes the exploration rate. This is the probability that the agent will use its Q value knowledge over making a random move while learning. There should" +
                         " be a healthy balance between random moves and exploitation. This is so the agent can explore the full environment without dying constantly.");
@@ -118,7 +114,7 @@ public class Dashboard {
             }
         });
 
-        explorationRateMaxOption.setListener(new OptionSet.OptionSetListener() {
+        explorationRateOption.setListener(new OptionSet.OptionSetListener() {
             @Override
             public void onChangeValue(int value) {
                 Solver.EXPLORATION_RATE = value;
@@ -238,11 +234,11 @@ public class Dashboard {
         Sub-routine to draw our elements upon request
      */
     public static void draw() {
-        if (stageType == TYPE.TYPE_CONFIGURATION) {
+        if (stageType == Type.TYPE_CONFIGURATION) {
             Gdx.input.setInputProcessor(configurationStage);
             configurationStage.act();
             configurationStage.draw();
-        } else if (stageType == TYPE.TYPE_RUNNING) {
+        } else if (stageType == Type.TYPE_RUNNING) {
             Gdx.input.setInputProcessor(runningStage);
             runningStage.act();
             runningStage.draw();
@@ -261,7 +257,7 @@ public class Dashboard {
         coinRewardOption.disable();
         discountRateOption.disable();
         learningRateOption.disable();
-        explorationRateMaxOption.disable();
+        explorationRateOption.disable();
         exitRewardOption.disable();
     }
 
@@ -276,14 +272,14 @@ public class Dashboard {
         coinRewardOption.enable();
         discountRateOption.enable();
         learningRateOption.enable();
-        explorationRateMaxOption.enable();
+        explorationRateOption.enable();
         exitRewardOption.enable();
     }
 
     /*
         Switches type of dashboard
      */
-    public static void setDashboardType(TYPE type) {
+    public static void setDashboardType(Type type) {
         stageType = type;
     }
 

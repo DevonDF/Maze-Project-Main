@@ -1,11 +1,8 @@
 package com.devonf.mazeproject.backend;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /*
     Holds information of each square of the grid for both
@@ -22,14 +19,14 @@ public class Square {
     }
 
     // Create our mapping of type to color for graphical use
-    public static HashMap<Type, Color> TYPECOLOR;
+    public static HashMap<Type, Color> TYPECOLOUR;
     static {
-        TYPECOLOR = new HashMap<Type, Color>();
-        TYPECOLOR.put(Type.TYPE_NOTHING, Color.WHITE);
-        TYPECOLOR.put(Type.TYPE_BOMB, Color.RED);
-        TYPECOLOR.put(Type.TYPE_PLAYER, Color.GREEN);
-        TYPECOLOR.put(Type.TYPE_EXIT, Color.GRAY);
-        TYPECOLOR.put(Type.TYPE_COIN, Color.GOLD);
+        TYPECOLOUR = new HashMap<Type, Color>();
+        TYPECOLOUR.put(Type.TYPE_NOTHING, Color.WHITE);
+        TYPECOLOUR.put(Type.TYPE_BOMB, Color.RED);
+        TYPECOLOUR.put(Type.TYPE_PLAYER, Color.GREEN);
+        TYPECOLOUR.put(Type.TYPE_EXIT, Color.GRAY);
+        TYPECOLOUR.put(Type.TYPE_COIN, Color.GOLD);
     }
 
 

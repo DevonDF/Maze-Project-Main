@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.devonf.mazeproject.MazeSolver;
 import com.devonf.mazeproject.backend.Grid;
 import com.devonf.mazeproject.backend.Square;
-import com.devonf.mazeproject.prompts.PromptManager;
 
 /*
     Class handles graphical drawing of grid
@@ -31,7 +30,7 @@ public class GridGraphics {
     /*
         Constructor
      */
-    public static void initialize(int width, int height) {
+    public static void initialise(int width, int height) {
         // Assign our variables
         shapeRenderer = new ShapeRenderer();
         allocated_height = height;
@@ -84,7 +83,7 @@ public class GridGraphics {
                     square_size[0],
                     square_size[1]);
             // Draw inside
-            shapeRenderer.setColor(Square.TYPECOLOR.get(square.type));
+            shapeRenderer.setColor(Square.TYPECOLOUR.get(square.type));
             shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.rect(
                     square.graphic_x + 0.5f,
@@ -121,14 +120,6 @@ public class GridGraphics {
         }
         return null;
     }
-
-    /*
-        Get square from co-ordinate
-     */
-    private static Square getSquare(int x, int y) {
-        return (Grid.getGrid()[(y*(Grid.getSize()))+x]);
-    }
-
     /*
         Set whether the grid should process mouse clicks
      */
