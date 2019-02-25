@@ -83,7 +83,7 @@ public class GridGraphics {
                     square_size[0],
                     square_size[1]);
             // Draw inside
-            shapeRenderer.setColor(Square.TYPECOLOUR.get(square.type));
+            shapeRenderer.setColor(square.getColor());
             shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.rect(
                     square.graphic_x + 0.5f,

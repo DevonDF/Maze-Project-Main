@@ -38,7 +38,7 @@ public class Grid {
                 Square square = new Square();
                 square.x = x;
                 square.y = y;
-                square.type = Square.Type.TYPE_NOTHING;
+                square.setType(Square.Type.TYPE_NOTHING);
                 grid[c++] = square;
             }
         }
@@ -70,7 +70,7 @@ public class Grid {
             gridCache[i] = new Square();
             gridCache[i].x = grid[i].x;
             gridCache[i].y = grid[i].y;
-            gridCache[i].type = grid[i].type;
+            gridCache[i].setType(grid[i].getType());
         }
     }
 
@@ -80,7 +80,7 @@ public class Grid {
     public static void revertToCache() {
         if (gridCache == null) {return;}
         for (int i = 0; i < grid.length; i++) {
-            grid[i].type = gridCache[i].type;
+            grid[i].setType(gridCache[i].getType());
         }
     }
 
@@ -103,21 +103,21 @@ public class Grid {
         Sub-routine to cycle squares through types
      */
     public static void cycleSquare(Square s) {
-        switch (s.type) {
+        switch (s.getType()) {
             case TYPE_NOTHING:
-                s.type = Square.Type.TYPE_PLAYER;
+                s.setType(Square.Type.TYPE_PLAYER);
                 break;
             case TYPE_PLAYER:
-                s.type = Square.Type.TYPE_BOMB;
+                s.setType(Square.Type.TYPE_BOMB);
                 break;
             case TYPE_BOMB:
-                s.type = Square.Type.TYPE_COIN;
+                s.setType(Square.Type.TYPE_COIN);
                 break;
             case TYPE_COIN:
-                s.type = Square.Type.TYPE_EXIT;
+                s.setType(Square.Type.TYPE_EXIT);
                 break;
             case TYPE_EXIT:
-                s.type = Square.Type.TYPE_NOTHING;
+                s.setType(Square.Type.TYPE_NOTHING);
                 break;
         }
     }
@@ -128,7 +128,7 @@ public class Grid {
     public static Square[] getSquaresByType(Square.Type type) {
         ArrayList<Square> list = new ArrayList<Square>();
         for (Square s : grid) {
-            if (s.type == type) {
+            if (s.getType() == type) {
                 list.add(s);
             }
         }

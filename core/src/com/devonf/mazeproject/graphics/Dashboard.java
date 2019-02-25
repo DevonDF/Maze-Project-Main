@@ -47,7 +47,9 @@ public class Dashboard {
 
     // Element variables for running
     private static OptionSet speedOption;
-    private static TextButton stopButton;
+    private static TextButton stopResumeButton;
+    private static boolean buttonOnStop;
+    private static TextButton debugModeButton;
 
 
     public static void initialize(int x, int y, int width, int height) {
@@ -204,9 +206,15 @@ public class Dashboard {
         speedOption = new OptionSet(runningStage, "Speed: %i", 10, 1000, 10, 100, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.72f, 0.9f, 0.05f, true, "Sets the speed of the game");
 
-        stopButton = new TextButton("Stop", skin);
-        DockTools.dockElement(stopButton, start_x, start_y, allocated_width, allocated_height,0f, 0.09f, 0.9f, 0.1f, true);
-        runningStage.addActor(stopButton);
+        stopResumeButton = new TextButton("Stop", skin);
+        buttonOnStop = true;
+        DockTools.dockElement(stopResumeButton, start_x, start_y, allocated_width, allocated_height,0f, 0.09f, 0.9f, 0.1f, true);
+        runningStage.addActor(stopResumeButton);
+
+        debugModeButton = new TextButton("Debug", skin);
+        DockTools.dockElement(debugModeButton, start_x, start_y, allocated_width, allocated_height, 0f, 0.19f, 0.9f, 0.1f, true);
+        debugModeButton.setDisabled(true);
+        runningStage.addActor(debugModeButton);
 
         speedOption.setListener(new OptionSet.OptionSetListener() {
             @Override
@@ -220,11 +228,31 @@ public class Dashboard {
             }
         });
 
-        stopButton.addCaptureListener(new EventListener() {
+        stopResumeButton.addCaptureListener(new EventListener() {
             @Override
             public boolean handle(Event event) {
                 if (!(event instanceof ChangeListener.ChangeEvent)) {return false;}
-                Solver.stopSolving();
+                if (buttonOnStop) {
+                    Solver.stopSolving();
+                    buttonOnStop = false;
+                    debugModeButton.setDisabled(false);
+                    stopResumeButton.setText("Resume");
+                } else {
+                    Solver.resumeSolving();
+                    buttonOnStop = true;
+                    debugModeButton.setDisabled(true);
+                    stopResumeButton.setText("Stop");
+                }
+                return false;
+            }
+        });
+
+        debugModeButton.addCaptureListener(new EventListener() {
+            @Override
+            public boolean handle(Event event) {
+                if (!(event instanceof ChangeListener.ChangeEvent)) {return false;}
+                setDashboardType(Type.TYPE_DEBUG);
+                Solver.showDebugInformation();
                 return false;
             }
         });

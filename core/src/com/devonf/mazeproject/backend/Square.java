@@ -35,9 +35,30 @@ public class Square {
     public int id;
     public int x, y;
     public float graphic_x, graphic_y;
-    public Type type;
+    private Type type;
+    private Color color;
 
     public Square() {
         id = ID_COUNT++;
     } // Assign an unique ID on creation
+
+    /*
+        Handles setting the type of square
+     */
+    public void setType(Type type) {
+        this.type = type;
+        this.color = TYPECOLOUR.get(type);
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public Color getColor() {
+        return color;
+    }
 }

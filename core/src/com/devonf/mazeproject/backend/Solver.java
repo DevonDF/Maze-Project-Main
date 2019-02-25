@@ -1,5 +1,6 @@
 package com.devonf.mazeproject.backend;
 
+import com.badlogic.gdx.graphics.Color;
 import com.devonf.mazeproject.Network.QTable;
 import com.devonf.mazeproject.Network.RewardsTable;
 import com.devonf.mazeproject.environment.Agent;
@@ -29,6 +30,8 @@ public class Solver {
 
     private static QTable qTable;
     private static RewardsTable rewardsTable;
+    private static Agent agent;
+    private static int wins;
 
     private static Thread workingThread; // Holds our thread for working
 
@@ -65,12 +68,12 @@ public class Solver {
             return;
         }
         explored.add(square.id);
-        if (square.type == Square.Type.TYPE_EXIT) {
+        if (square.getType() == Square.Type.TYPE_EXIT) {
             found = true;
             return;
         }
         for (Square s : Grid.getNearbySquares(square)) {
-            if (s.type == Square.Type.TYPE_BOMB) {
+            if (s.getType() == Square.Type.TYPE_BOMB) {
                 continue; // Don't explore bombs
             }
             if (explored.contains(s.id)) {
@@ -97,24 +100,6 @@ public class Solver {
             3. Update dashboard to show we've finished and display prompt
      */
     private static void solve() throws Exception {
-        // 1
-        qTable = new QTable(Grid.getSize(), Grid.getSize());
-        rewardsTable = new RewardsTable(Grid.getSize(), Grid.getSize());
-
-        for (Square bomb : Grid.getSquaresByType(Square.Type.TYPE_BOMB)) {
-            rewardsTable.addReward(bomb.x, bomb.y, BOMB_REWARD);
-        }
-        for (Square coin : Grid.getSquaresByType(Square.Type.TYPE_COIN)) {
-            rewardsTable.addReward(coin.x, coin.y, COIN_REWARD);
-        }
-        Square exit = Grid.getSquaresByType(Square.Type.TYPE_EXIT)[0];
-        rewardsTable.addReward(exit.x, exit.y, EXIT_REWARD);
-
-        // 2
-        Grid.cache();
-        Agent agent = new Agent(Grid.getSquaresByType(Square.Type.TYPE_PLAYER)[0]); // Create our agent
-
-        int wins = 0;
         while (wins < 100) {
             int old_x = agent.getX();
             int old_y = agent.getY();
@@ -178,13 +163,35 @@ public class Solver {
         Dashboard.setDashboardType(Dashboard.Type.TYPE_RUNNING);
         GridGraphics.setAcceptInput(false);
 
-        // 3
+        //
+        qTable = new QTable(Grid.getSize(), Grid.getSize());
+        rewardsTable = new RewardsTable(Grid.getSize(), Grid.getSize());
 
+        for (Square bomb : Grid.getSquaresByType(Square.Type.TYPE_BOMB)) {
+            rewardsTable.addReward(bomb.x, bomb.y, BOMB_REWARD);
+        }
+        for (Square coin : Grid.getSquaresByType(Square.Type.TYPE_COIN)) {
+            rewardsTable.addReward(coin.x, coin.y, COIN_REWARD);
+        }
+        Square exit = Grid.getSquaresByType(Square.Type.TYPE_EXIT)[0];
+        rewardsTable.addReward(exit.x, exit.y, EXIT_REWARD);
+
+        //
+        Grid.cache();
+        agent = new Agent(Grid.getSquaresByType(Square.Type.TYPE_PLAYER)[0]); // Create our agent
+        wins = 0;
+
+        beginBackgroundThread();
+
+    }
+
+    /*
+        Start our background solving thread
+     */
+    private static void beginBackgroundThread() {
         if (workingThread != null) {
             workingThread.interrupt(); // Stop any current thread before starting to avoid any issues
         }
-
-
         workingThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -211,11 +218,23 @@ public class Solver {
     }
 
     /*
+        Restart our background solving thread
+     */
+    public static void resumeSolving() {
+        if (workingThread != null) {
+            if (!workingThread.isAlive()) {
+                beginBackgroundThread();
+            }
+        }
+    }
+
+    /*
         Internal sub routine for handling thread interrupts
      */
     private static void onInterrupt() {
         System.out.println("onInterrupt");
         Grid.revertToCache();
+        agent.reset();
         onFinishedSolving();
     }
 
@@ -224,6 +243,29 @@ public class Solver {
      */
     private static void onFinishedSolving() {
         System.out.println("onFinishedSolving");
+    }
+
+    /*
+        Display debug grid
+     */
+    public static void showDebugInformation() {
+        for (int i = 0; i < Grid.getGrid().length; i++) {
+            Square s = Grid.getGrid()[i];
+            double maxQValue = qTable.getMaxQ(s.x, s.y);
+            if (maxQValue > 0) {
+                // Positive value, therefore we display a gradient of green
+                // We will base our 'max' positive value on EXIT_REWARD, as theoretically this is the maximum
+                // Min green: 220 | Max green: 120 | Difference: 100
+                float diff = (float)(maxQValue / EXIT_REWARD);
+                System.out.println(diff);
+                s.setColor(new Color(0.0f, 0.2f + diff, 0.0f, 0.0f));
+            } else {
+                // Negative value, therefore we display a gradient of red
+                // We will base our max neg value on BOMB_REWARD
+                float diff = (float)(Math.abs(maxQValue) / BOMB_REWARD);
+                s.setColor(new Color(0.2f + diff, 0.0f, 0.0f, 0.0f));
+            }
+        }
     }
 
 }

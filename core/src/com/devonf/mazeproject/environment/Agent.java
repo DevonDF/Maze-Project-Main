@@ -69,17 +69,17 @@ public class Agent {
         }
 
         // Set our previous square back to nothing
-        square.type = Square.Type.TYPE_NOTHING;
+        square.setType(Square.Type.TYPE_NOTHING);
 
         this.x = x;
         this.y = y;
         this.square = Grid.getSquare(x, y);
 
         // Call our internal onMove to update player status based on this current move
-        onMove(square.type);
+        onMove(square.getType());
 
         // Set our new square to the player
-        square.type = Square.Type.TYPE_PLAYER;
+        square.setType(Square.Type.TYPE_PLAYER);
 
         return true;
     }
