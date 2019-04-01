@@ -10,6 +10,7 @@ import com.devonf.mazeproject.backend.DockTools;
 import com.devonf.mazeproject.backend.Grid;
 import com.devonf.mazeproject.backend.OptionSet;
 import com.devonf.mazeproject.backend.Solver;
+import com.devonf.mazeproject.prompts.Prompt;
 import com.kotcrab.vis.ui.VisUI;
 
 /*
@@ -20,7 +21,6 @@ public class Dashboard {
 
     // Holds enum for type of dashboard
     public enum Type {
-        TYPE_DEBUG,
         TYPE_RUNNING,
         TYPE_CONFIGURATION
     }
@@ -50,6 +50,8 @@ public class Dashboard {
     private static TextButton stopResumeButton;
     private static boolean buttonOnStop;
     private static TextButton debugModeButton;
+    private static boolean buttonOnDebug;
+    private static TextButton finishButton;
 
 
     public static void initialize(int x, int y, int width, int height) {
@@ -90,7 +92,7 @@ public class Dashboard {
                 0f, 0.62f, 0.9f, 0.05f, true,
                 "This changes the exploration rate. This is the probability that the agent will use its Q value knowledge over making a random move while learning. There should" +
                         " be a healthy balance between random moves and exploitation. This is so the agent can explore the full environment without dying constantly.");
-        discountRateOption = new OptionSet(configurationStage, "Discount rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
+        discountRateOption = new OptionSet(configurationStage, "Discount rate: %i%", 0, 200, 1, 99, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.52f, 0.9f, 0.05f, true,
                 "This changes the discount rate. This is the rate at which future rewards are discounted to the agent. This means that rewards further away with higher values may" +
                         " appear as good as close-by rewards with lower values. This should be balanced so that the agent bothers to collect the coins, but does actually leave.");
@@ -178,8 +180,21 @@ public class Dashboard {
 
         gridSizeOption.setListener(new OptionSet.OptionSetListener() {
             @Override
-            public void onChangeValue(int value) {
-                if (Grid.getSize() != value) {
+            public void onChangeValue(final int value) {
+                if (Grid.getSize() != value && Grid.hasBeenConfigured()) {
+                    new Prompt("Warning!", "If you change the grid size, all current configurations will be lost.", true, new Prompt.PromptListener() {
+                        @Override
+                        public void onAccept() {
+                            Grid.resize(value);
+                        }
+
+                        @Override
+                        public void onDecline() {
+                            gridSizeOption.getSlider().setValue(Grid.getSize());
+                            gridSizeOption.getSlider().validate();
+                        }
+                    });
+                } else if (Grid.getSize() != value) {
                     Grid.resize(value);
                 }
             }
@@ -203,7 +218,7 @@ public class Dashboard {
         Sub-routine to declare elements for our running dashboard
      */
     private static void declareRunningElements() {
-        speedOption = new OptionSet(runningStage, "Speed: %i", 10, 1000, 10, 100, skin, start_x, start_y, allocated_width, allocated_height,
+        speedOption = new OptionSet(runningStage, "Speed: %ims", 10, 1000, 10, 100, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.72f, 0.9f, 0.05f, true, "Sets the speed of the game");
 
         stopResumeButton = new TextButton("Stop", skin);
@@ -212,9 +227,15 @@ public class Dashboard {
         runningStage.addActor(stopResumeButton);
 
         debugModeButton = new TextButton("Debug", skin);
-        DockTools.dockElement(debugModeButton, start_x, start_y, allocated_width, allocated_height, 0f, 0.19f, 0.9f, 0.1f, true);
+        DockTools.dockElement(debugModeButton, start_x, start_y, allocated_width, allocated_height, 0f, 0.2f, 0.9f, 0.1f, true);
+        buttonOnDebug = true;
         debugModeButton.setDisabled(true);
         runningStage.addActor(debugModeButton);
+
+        finishButton = new TextButton("Finish", skin);
+        DockTools.dockElement(finishButton, start_x, start_y, allocated_width, allocated_height, 0f, 0.31f, 0.9f, 0.1f, true);
+        finishButton.setDisabled(true);
+        runningStage.addActor(finishButton);
 
         speedOption.setListener(new OptionSet.OptionSetListener() {
             @Override
@@ -236,11 +257,13 @@ public class Dashboard {
                     Solver.stopSolving();
                     buttonOnStop = false;
                     debugModeButton.setDisabled(false);
+                    finishButton.setDisabled(false);
                     stopResumeButton.setText("Resume");
                 } else {
                     Solver.resumeSolving();
                     buttonOnStop = true;
                     debugModeButton.setDisabled(true);
+                    finishButton.setDisabled(true);
                     stopResumeButton.setText("Stop");
                 }
                 return false;
@@ -251,8 +274,31 @@ public class Dashboard {
             @Override
             public boolean handle(Event event) {
                 if (!(event instanceof ChangeListener.ChangeEvent)) {return false;}
-                setDashboardType(Type.TYPE_DEBUG);
-                Solver.showDebugInformation();
+                if (buttonOnDebug) {
+                    Solver.showDebugInformation();
+                    debugModeButton.setText("Back");
+                    stopResumeButton.setDisabled(true);
+                    buttonOnDebug = false;
+                } else {
+                    Grid.revertToCache();
+                    debugModeButton.setText("Debug");
+                    stopResumeButton.setDisabled(false);
+                    buttonOnDebug = true;
+                }
+                return false;
+            }
+        });
+
+        finishButton.addCaptureListener(new EventListener() {
+            @Override
+            public boolean handle(Event event) {
+                if (!(event instanceof ChangeListener.ChangeEvent)) {return false;}
+                Grid.revertToCache();
+                Solver.endSolving();
+                buttonOnStop = true;
+                debugModeButton.setDisabled(true);
+                finishButton.setDisabled(true);
+                stopResumeButton.setText("Stop");
                 return false;
             }
         });
@@ -275,37 +321,8 @@ public class Dashboard {
     }
 
     /*
-        Disables dashboard
-        Should disable all elements
-     */
-    public static void disable() {
-        startButton.setDisabled(true);
-        gridSizeOption.disable();
-        bombRewardOption.disable();
-        coinRewardOption.disable();
-        discountRateOption.disable();
-        learningRateOption.disable();
-        explorationRateOption.disable();
-        exitRewardOption.disable();
-    }
-
-    /*
-        Enables dashboard
-        Should enable all elements
-     */
-    public static void enable() {
-        startButton.setDisabled(false);
-        gridSizeOption.enable();
-        bombRewardOption.enable();
-        coinRewardOption.enable();
-        discountRateOption.enable();
-        learningRateOption.enable();
-        explorationRateOption.enable();
-        exitRewardOption.enable();
-    }
-
-    /*
         Switches type of dashboard
+        Should reset all our variables and OptionSet parameters
      */
     public static void setDashboardType(Type type) {
         stageType = type;

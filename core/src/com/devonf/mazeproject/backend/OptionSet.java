@@ -53,7 +53,7 @@ public class OptionSet {
             public boolean handle(Event event) {
                 if (!(event instanceof ChangeListener.ChangeEvent)) {return false;}
                 int value = (int)((Slider)event.getListenerActor()).getValue();
-                label.setText(getLabelText()); // Update our label here
+                updateValue(value);
                 if (listener != null) {
                     listener.onChangeValue(value); // Call our listener function
                 }
@@ -79,10 +79,19 @@ public class OptionSet {
     }
 
     /*
+        Sets value of our slider, as well as updating the label
+     */
+    public void updateValue(int value) {
+        this.sliderValue = value;
+        slider.setValue(value);
+        label.setText(getLabelText());
+    }
+
+    /*
         Format our label text with the current value
      */
     private String getLabelText() {
-        return labelText.replace("%i", ""+slider.getValue());
+        return labelText.replace("%i", ""+sliderValue);
     }
 
     public interface OptionSetListener {
@@ -91,8 +100,23 @@ public class OptionSet {
     }
 
     /*
-        Disables input
+        Returns slider
      */
+    public Slider getSlider() {
+        return slider;
+    }
+
+    /*
+        Returns label
+     */
+
+    public Label getLabel() {
+        return label;
+    }
+
+    /*
+            Disables input
+         */
     public void disable() {
         slider.setDisabled(true);
         button.setDisabled(true);

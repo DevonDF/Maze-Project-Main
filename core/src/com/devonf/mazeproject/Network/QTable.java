@@ -1,5 +1,8 @@
 package com.devonf.mazeproject.Network;
 
+import com.devonf.mazeproject.backend.AMath;
+import com.devonf.mazeproject.backend.Solver;
+
 import java.util.Arrays;
 
 /*
@@ -60,9 +63,10 @@ public class QTable {
                                    double discountRate) {
         // NewQ(s,a) = Q(s,a) + (lr * (R(s,a) + (dr * maxQ(s,a))) - Q(s,a))
         int[] newState = newStateFromAction(c, r, action);
-        System.out.println(newState[0] + "," + newState[1]);
-        qTable[c][r][action] = getQValue(c, r, action) + (learningRate * (rt.getReward(newState[0], newState[1]) +
-                (discountRate * getMaxQ(newState[0], newState[1]))) - getQValue(c, r, action));
+        // Update the QValue using bellman's equation, then clamp it between two appropriate values
+        // Clamping should avoid the unwanted effects of iteration, whereby values become too big for accurate comparison
+        qTable[c][r][action] = AMath.clamp(-Solver.EXIT_REWARD,Solver.EXIT_REWARD,getQValue(c, r, action) + (learningRate * (rt.getReward(newState[0], newState[1]) +
+                ((discountRate * getMaxQ(newState[0], newState[1]))) - getQValue(c, r, action))));
     }
 
     /*
@@ -70,6 +74,22 @@ public class QTable {
      */
     public void setQValue(int c, int r, int action, double val) {
         qTable[c][r][action] = val;
+    }
+
+    /*
+        Get total of QValues for square
+     */
+    public double getQValue(int c, int r) {
+        double total = 0;
+        for (int i = 0; i < 4; i++) {
+            int[] adjacent = newStateFromAction(c, r, i);
+            try {
+                total += (getQValue(adjacent[0],adjacent[1], (i < 2) ? i+2 : i-2));
+            } catch(Exception e) {
+                // This adjacent square doesn't exist
+            }
+        }
+        return total;
     }
 
     /*
@@ -100,6 +120,7 @@ public class QTable {
 
         return new int[] {newX, newY};
     }
+
 
     /*
         Print our Q-Table

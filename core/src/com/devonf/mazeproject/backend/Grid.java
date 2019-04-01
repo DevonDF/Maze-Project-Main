@@ -155,5 +155,19 @@ public class Grid {
         return list.toArray(squares);
     }
 
+    /*
+        Returns whether the grid has been configured in any sense
+     */
+    public static boolean hasBeenConfigured() {
+        boolean conf = false;
+        for (Square s : grid) {
+            if (s.getType() != Square.Type.TYPE_NOTHING) {
+                conf = true;
+                break;
+            }
+        }
+        return conf;
+    }
+
 
 }
