@@ -105,9 +105,11 @@ public class Solver {
             int old_y = agent.getY();
             int move;
 
+            System.out.println("Explor: " + EXPLORATION_RATE);
             if (EXPLORATION_RATE > Math.random()) {
                 // We explore here
                 move = (int)Math.round(Math.random() * 3);
+                System.out.println("exploring");
             } else {
                 // We exploit here
                 move = qTable.getBestAction(old_x, old_y);
@@ -128,6 +130,7 @@ public class Solver {
             } else if (agent.hasEscaped()) {
                 // We have escaped, increment wins and reset grid and agent
                 wins++;
+                Dashboard.setWinLabel(wins); // Update our win label
                 agent.reset();
                 Grid.revertToCache();
             }
@@ -180,6 +183,7 @@ public class Solver {
         Grid.cache();
         agent = new Agent(Grid.getSquaresByType(Square.Type.TYPE_PLAYER)[0]); // Create our agent
         wins = 0;
+        Dashboard.setWinLabel(wins); // Update our wins label
 
         beginBackgroundThread();
 

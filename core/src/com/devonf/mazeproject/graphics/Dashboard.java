@@ -12,6 +12,7 @@ import com.devonf.mazeproject.backend.OptionSet;
 import com.devonf.mazeproject.backend.Solver;
 import com.devonf.mazeproject.prompts.Prompt;
 import com.kotcrab.vis.ui.VisUI;
+import javafx.scene.paint.Color;
 
 /*
     This handles graphical elements of the 'Dashboard'
@@ -48,10 +49,12 @@ public class Dashboard {
     // Element variables for running
     private static OptionSet speedOption;
     private static TextButton stopResumeButton;
+    private static OptionSet explorationRateOptionRunning;
     private static boolean buttonOnStop;
     private static TextButton debugModeButton;
     private static boolean buttonOnDebug;
     private static TextButton finishButton;
+    private static Label winsCounter;
 
 
     public static void initialize(int x, int y, int width, int height) {
@@ -109,7 +112,7 @@ public class Dashboard {
         learningRateOption.setListener(new OptionSet.OptionSetListener() {
             @Override
             public void onChangeValue(int value) {
-                Solver.LEARNING_RATE = value;
+                Solver.LEARNING_RATE = (double)value/100;
             }
 
             @Override
@@ -121,7 +124,7 @@ public class Dashboard {
         explorationRateOption.setListener(new OptionSet.OptionSetListener() {
             @Override
             public void onChangeValue(int value) {
-                Solver.EXPLORATION_RATE = value;
+                Solver.EXPLORATION_RATE = (double)value/100;
             }
 
             @Override
@@ -133,7 +136,7 @@ public class Dashboard {
         discountRateOption.setListener(new OptionSet.OptionSetListener() {
             @Override
             public void onChangeValue(int value) {
-                Solver.DISCOUNT_RATE = value;
+                Solver.DISCOUNT_RATE = (double)value/100;
             }
 
             @Override
@@ -221,26 +224,48 @@ public class Dashboard {
         speedOption = new OptionSet(runningStage, "Speed: %ims", 10, 1000, 10, 100, skin, start_x, start_y, allocated_width, allocated_height,
                 0f, 0.72f, 0.9f, 0.05f, true, "Sets the speed of the game");
 
+        explorationRateOptionRunning = new OptionSet(runningStage, "Explor rate: %i%", 0, 100, 1, 50, skin, start_x, start_y, allocated_width, allocated_height,
+                0f, 0.62f, 0.9f, 0.05f, true,
+                "This changes the exploration rate. This is the probability that the agent will use its Q value knowledge over making a random move while learning. There should" +
+                        " be a healthy balance between random moves and exploitation. This is so the agent can explore the full environment without dying constantly.");
+
         stopResumeButton = new TextButton("Stop", skin);
         buttonOnStop = true;
-        DockTools.dockElement(stopResumeButton, start_x, start_y, allocated_width, allocated_height,0f, 0.09f, 0.9f, 0.1f, true);
+        DockTools.dockElement(stopResumeButton, start_x, start_y, allocated_width, allocated_height,0f, 0.1f, 0.9f, 0.1f, true);
         runningStage.addActor(stopResumeButton);
 
         debugModeButton = new TextButton("Debug", skin);
-        DockTools.dockElement(debugModeButton, start_x, start_y, allocated_width, allocated_height, 0f, 0.2f, 0.9f, 0.1f, true);
+        DockTools.dockElement(debugModeButton, start_x, start_y, allocated_width, allocated_height, 0f, 0.21f, 0.9f, 0.1f, true);
         buttonOnDebug = true;
         debugModeButton.setDisabled(true);
         runningStage.addActor(debugModeButton);
 
         finishButton = new TextButton("Finish", skin);
-        DockTools.dockElement(finishButton, start_x, start_y, allocated_width, allocated_height, 0f, 0.31f, 0.9f, 0.1f, true);
+        DockTools.dockElement(finishButton, start_x, start_y, allocated_width, allocated_height, 0f, 0.32f, 0.9f, 0.1f, true);
         finishButton.setDisabled(true);
         runningStage.addActor(finishButton);
+
+        winsCounter = new Label("Wins: 0", skin);
+        DockTools.dockElement(winsCounter, start_x, start_y, allocated_width, allocated_height, 0f, 0.82f, 0.9f, 0.1f, true);
+        winsCounter.setColor(com.badlogic.gdx.graphics.Color.BLACK);
+        runningStage.addActor(winsCounter);
 
         speedOption.setListener(new OptionSet.OptionSetListener() {
             @Override
             public void onChangeValue(int value) {
                 Solver.SPEED = value;
+            }
+
+            @Override
+            public void onButtonPress() {
+
+            }
+        });
+
+        explorationRateOptionRunning.setListener(new OptionSet.OptionSetListener() {
+            @Override
+            public void onChangeValue(int value) {
+                Solver.EXPLORATION_RATE = (double)value/100;
             }
 
             @Override
@@ -326,6 +351,17 @@ public class Dashboard {
      */
     public static void setDashboardType(Type type) {
         stageType = type;
+        explorationRateOption.updateValue((int)(Solver.EXPLORATION_RATE*100));
+        explorationRateOptionRunning.updateValue((int)(Solver.EXPLORATION_RATE*100));
+    }
+
+    /*
+        Updates the win label
+     */
+    public static void setWinLabel(int wins) {
+        if (winsCounter != null) {
+            winsCounter.setText("Wins: " + wins);
+        }
     }
 
 
