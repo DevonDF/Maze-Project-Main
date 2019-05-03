@@ -100,16 +100,14 @@ public class Solver {
             3. Update dashboard to show we've finished and display prompt
      */
     private static void solve() throws Exception {
-        while (wins < 100) {
+        while (true) {
             int old_x = agent.getX();
             int old_y = agent.getY();
             int move;
 
-            System.out.println("Explor: " + EXPLORATION_RATE);
             if (EXPLORATION_RATE > Math.random()) {
                 // We explore here
                 move = (int)Math.round(Math.random() * 3);
-                System.out.println("exploring");
             } else {
                 // We exploit here
                 move = qTable.getBestAction(old_x, old_y);
@@ -138,9 +136,6 @@ public class Solver {
             // Sleep our thread here to allow for graphics to catchup with the backend processing
             Thread.sleep(SPEED);
         }
-
-
-
     }
 
 
@@ -213,7 +208,6 @@ public class Solver {
                 } catch (Exception e) {
                     onInterrupt();
                 }
-                onFinishedSolving();
             }
         });
         workingThread.start();
@@ -245,17 +239,8 @@ public class Solver {
         Internal sub routine for handling thread interrupts
      */
     private static void onInterrupt() {
-        System.out.println("onInterrupt");
         Grid.revertToCache();
         agent.reset();
-        onFinishedSolving();
-    }
-
-    /*
-        Internal sub routine for handling aftermath of learning
-     */
-    private static void onFinishedSolving() {
-        System.out.println("onFinishedSolving");
     }
 
     /*
@@ -270,12 +255,10 @@ public class Solver {
                 // Positive value, therefore we display a gradient of green
                 // We will base our 'max' positive value on EXIT_REWARD, as theoretically this is the maximum
                 // Min green: 220 | Max green: 120 | Difference: 100
-                System.out.println(maxQValue);
                 s.setColor(new Color(0.0f, (float)diff, 0.0f, 0.0f));
             } else {
                 // Negative value, therefore we display a gradient of red
-                // We will base our max neg value on BOMB_REWARD
-                System.out.println(maxQValue);
+                // We will base our 'max' negative value on the negative of EXIT_REWARD, for ease
                 s.setColor(new Color((float)(1-diff), 0.0f, 0.0f, 0.0f));
             }
         }

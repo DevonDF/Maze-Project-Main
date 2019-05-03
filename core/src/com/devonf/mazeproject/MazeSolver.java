@@ -22,7 +22,7 @@ public class MazeSolver extends ApplicationAdapter {
         // Create our grid superclass, and assign screen size for graphical backend
         Grid.initialise(DEFAULT_GRID_SIZE, 520, 480);
         // Create our dashboard class and assign screen size
-        Dashboard.initialize(520, 0, WIDTH-520-15, 480);
+        Dashboard.initialise(520, 0, WIDTH-520-15, 480);
     }
 
     @Override

@@ -65,7 +65,7 @@ public class QTable {
         int[] newState = newStateFromAction(c, r, action);
         // Update the QValue using bellman's equation, then clamp it between two appropriate values
         // Clamping should avoid the unwanted effects of iteration, whereby values become too big for accurate comparison
-        qTable[c][r][action] = AMath.clamp(-Solver.EXIT_REWARD,Solver.EXIT_REWARD,getQValue(c, r, action) + (learningRate * (rt.getReward(newState[0], newState[1]) +
+        qTable[c][r][action] = AMath.clamp(-100,100,getQValue(c, r, action) + (learningRate * (rt.getReward(newState[0], newState[1]) +
                 ((discountRate * getMaxQ(newState[0], newState[1]))) - getQValue(c, r, action))));
     }
 
@@ -119,20 +119,5 @@ public class QTable {
         }
 
         return new int[] {newX, newY};
-    }
-
-
-    /*
-        Print our Q-Table
-     */
-    public void printTable() {
-        // {0.5555555, 0.111111, 0.2222222}
-        System.out.print("\t\t\t\t\t\t\tQTable:\n");
-        for (int y = 0; y < qTable[0].length; y++) {
-            for (int x = 0; x < qTable.length; x++) {
-                System.out.print(Arrays.toString(qTable[x][y]) + "\t");
-            }
-            System.out.print("\n");
-        }
     }
 }

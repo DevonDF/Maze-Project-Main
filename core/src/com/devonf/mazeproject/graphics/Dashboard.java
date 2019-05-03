@@ -57,7 +57,7 @@ public class Dashboard {
     private static Label winsCounter;
 
 
-    public static void initialize(int x, int y, int width, int height) {
+    public static void initialise(int x, int y, int width, int height) {
         start_x = x;
         start_y = y;
         allocated_width = width;
